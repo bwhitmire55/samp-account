@@ -128,6 +128,10 @@ stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}
     return 1;
 }
 
+stock bool: IsPlayerLoggedIn(playerid) {
+    return gPlayerData[playerid][bLoggedIn];
+}
+
 static IsValidDB(DB: handle) {
     if(handle != DB:0) {
         return 1;
