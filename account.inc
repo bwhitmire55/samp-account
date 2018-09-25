@@ -102,7 +102,7 @@ stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}
         return 0;
     }
 
-    gAccountData[slot][eName] = name;
+    strcat(gAccountData[slot][eName], name);
     gAccountData[slot][eType] = type;
     gAccountData[slot][eAddress] = GetArgumentAddress(2);
 
