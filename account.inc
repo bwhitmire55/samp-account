@@ -9,8 +9,7 @@
 
 #include <a_samp>
 #include <pointers>
-
-// tryinclude y_hooks, else use ALS
+#include <YSI\y_hooks>
 
 #if !defined ACCOUNT_DATABASE 
     #define ACCOUNT_DATABASE            "accounts.db"
@@ -48,15 +47,15 @@ enum Types
 
 enum ePlayer 
 {
-    UID,
+    eUID,
     bool: bLoggedIn
 };
 
 enum eAccount 
 {
-    Name[MAX_PLAYER_NAME],
-    Types: Type,
-    Address
+    eName[ACCOUNT_MAX_COLUMN_NAME],
+    Types: eType,
+    eAddress
 };
 
 static 
@@ -64,7 +63,7 @@ static
     gAccountData[ACCOUNT_MAX_COLUMNS][eAccount],
     DB: gDBHandle;
 
-public OnGameModeInit()
+hook OnGameModeInit()
 {
     gDBHandle = db_open(ACCOUNT_DATABASE);
 
@@ -76,7 +75,7 @@ public OnGameModeInit()
     return 1;
 }
 
-public OnGameModeExit()
+hook OnGameModeExit()
 {
     if(IsValidDB(gDBHandle)) {
         db_close(gDBHandle);

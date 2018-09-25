@@ -5,6 +5,14 @@
 	"output": "test.amx",
 	"dependencies": [
 		"sampctl/samp-stdlib",
-		"SAMP-git/pointers"
-	]
+		"SAMP-git/pointers",
+		"pawn-lang/YSI-Includes"
+	],
+	"runtime": {
+		"version": "0.3.7",
+		"mode": "server",
+		"echo": "-",
+		"rcon_password": "password",
+		"port": 7777
+	}
 }
