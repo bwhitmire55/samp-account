@@ -146,7 +146,7 @@ static GetOpenAccountSlot() {
 
 static CreateDefaultTable() {
     if(IsValidDB(gDBHandle)) {
-        db_query(gDBHandle, "CREATE TABLE IF NOT EXISTS `"ACCOUNT_DATABASE_TABLE"` \
+        db_query(gDBHandle, "CREATE TABLE IF NOT EXISTS `"ACCOUNT_DATABASE_TABLE"` ( \
             username TEXT, \
             password BLOB, \
             reg_ip TEXT \
