@@ -105,9 +105,8 @@ stock RegisterPlayer(playerid, const password[])
 
     format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
     result = db_query(gDBHandle, query);
-    print(query);
+
     if(result) {
-        print("result");
         if(db_num_rows(result)) {
             printf("[ERROR - account.inc] Username is already registered -> '%s'", ReturnPlayerName(playerid));
         } else {
@@ -122,9 +121,9 @@ stock RegisterPlayer(playerid, const password[])
                 pass,
                 ip
             );
-            print(query);
+
             db_query(gDBHandle, query);
-            print("query done");
+
             //gPlayerData[playerid][eUID] = 
             gPlayerData[playerid][bLoggedIn] = true;
             return 1;
