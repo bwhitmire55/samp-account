@@ -13,6 +13,8 @@ main() {
 }
 
 public OnGameModeInit() {
+	AddPlayerClass(0, 0.00, 0.00, 0.00, 0.00, 0, 0, 0, 0, 0, 0);
+
 	AddAccountData("kills", TYPE_INT, gPlayerKills);
 	AddAccountData("deaths", TYPE_INT, gPlayerDeaths);
 	AddAccountData("health", TYPE_FLOAT, gPlayerHealth);
@@ -22,14 +24,14 @@ public OnGameModeInit() {
 
 public OnPlayerCommandText(playerid, cmdtext[]) {
 
-	if(!strcmp(cmdtext, "/register", true)) {
+	if(!strcmp(cmdtext, "/register", true, 9)) {
 		if(IsPlayerLoggedIn(playerid)) 
 			return SendClientMessage(playerid, 0xFF0000FF, "Already logged in!");
 
 		if(!strlen(cmdtext[10])) {
 			return SendClientMessage(playerid, 0xFF0000FF, "Usage: /register <password>");
 		}
-
+		
 		if(!RegisterPlayer(playerid, cmdtext[10])) {
 			SendClientMessage(playerid, 0xFF0000FF, "Username already registered!");
 		} else {
@@ -38,7 +40,7 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 		return 1;
 	}
 
-	if(!strcmp(cmdtext, "/login", true)) {
+	if(!strcmp(cmdtext, "/login", true, 6)) {
 		if(IsPlayerLoggedIn(playerid))
 			return SendClientMessage(playerid, 0xFF0000FF, "Already logged in!");
 

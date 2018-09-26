@@ -98,9 +98,10 @@ stock RegisterPlayer(playerid, const password[])
 
     format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
     result = db_query(gDBHandle, query);
-
+    print(query);
     if(result) {
-        if(!db_num_rows(result)) {
+        print("result");
+        if(db_num_rows(result)) {
             printf("[ERROR - account.inc] Username is already registered -> '%s'", ReturnPlayerName(playerid));
         } else {
             db_free_result(result);
@@ -114,8 +115,9 @@ stock RegisterPlayer(playerid, const password[])
                 pass,
                 ip
             );
-
+            print(query);
             db_query(gDBHandle, query);
+            print("query done");
             //gPlayerData[playerid][eUID] = 
             gPlayerData[playerid][bLoggedIn] = true;
             return 1;
@@ -133,12 +135,12 @@ stock LoginPlayer(playerid, const password[])
     }
 
     new 
-        query[128],
+        query[256],
         DBResult: result,
         pass[129];
 
     WP_Hash(pass, sizeof(pass), password);
-    format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE name = '%s' AND password = '%s'",
+    format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s' AND password = '%s'",
         ReturnPlayerName(playerid),
         pass
     );
@@ -229,6 +231,7 @@ static GetOpenAccountSlot() {
 static CreateDefaultTable() {
     if(IsValidDB(gDBHandle)) {
         db_query(gDBHandle, "CREATE TABLE IF NOT EXISTS `"ACCOUNT_DATABASE_TABLE"` ( \
+            id INTEGER PRIMARY KEY AUTOINCREMENT, \
             username TEXT, \
             password BLOB, \
             reg_ip TEXT \
