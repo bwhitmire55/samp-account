@@ -83,6 +83,43 @@ hook OnGameModeExit()
     return 1;
 }
 
+stock RegisterPlayer(playerid, const password[]) 
+{
+    if(!IsValidDB(gDBHandle)) {
+        print("[ERROR - account.inc] Not connected to the database!");
+        return 0;
+    }
+
+    new 
+        query[128],
+        DBResult: result;
+
+    format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
+    result = db_query(gDBHandle, query);
+
+    if(result) {
+        if(!db_num_rows(result)) {
+            printf("[ERROR - account.inc] Username is already registered -> '%s'", ReturnPlayerName(playerid));
+        } else {
+            db_free_result(result);
+
+            new pass[129];
+            WP_Hash(pass, sizeof(pass), password);
+
+            format(query, sizeof(query), "INSERT INTO `"ACCOUNT_DATABASE_TABLE"` (username, password, reg_ip) VALUES('%s','%s','%s')",
+                ReturnPlayerName(playerid),
+                pass,
+                ReturnPlayerIP(playerid)
+            );
+
+            db_query(gDBHandle, query);
+            return 1;
+        }
+        db_free_result(result);
+    }
+    return 0;
+}
+
 stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}:...)
 {
     if(numargs() != 3) {
