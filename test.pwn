@@ -26,13 +26,11 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 		if(IsPlayerLoggedIn(playerid)) 
 			return SendClientMessage(playerid, 0xFF0000FF, "Already logged in!");
 
-		new params[30] = cmdtext[10];
-
-		if(!strlen(params)) {
+		if(!strlen(cmdtext[10])) {
 			return SendClientMessage(playerid, 0xFF0000FF, "Usage: /register <password>");
 		}
 
-		if(!RegisterPlayer(playerid, params)) {
+		if(!RegisterPlayer(playerid, cmdtext[10])) {
 			SendClientMessage(playerid, 0xFF0000FF, "Username already registered!");
 		} else {
 			SendClientMessage(playerid, 0x00FF00FF, "Successfully registered!");
@@ -44,13 +42,11 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 		if(IsPlayerLoggedIn(playerid))
 			return SendClientMessage(playerid, 0xFF0000FF, "Already logged in!");
 
-		new params[30] = cmdtext[7];
-
-		if(!strlen(params)) {
+		if(!strlen(cmdtext[7])) {
 			return SendClientMessage(playerid, 0xFF0000FF, "Usage: /login <password>");
 		}
 
-		if(!LoginPlayer(playerid, params)) {
+		if(!LoginPlayer(playerid, cmdtext[7])) {
 			SendClientMessage(playerid, 0xFF0000FF, "Incorrect password!");
 		} else {
 			SendClientMessage(playerid, 0x00FF00FF, "Successfully logged in!");

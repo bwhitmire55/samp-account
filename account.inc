@@ -11,6 +11,8 @@
 #include <pointers>
 #include <YSI\y_hooks>
 
+native WP_Hash(buffer[], len, const str[]);
+
 #if !defined ACCOUNT_DATABASE 
     #define ACCOUNT_DATABASE            "accounts.db"
 #endif 
@@ -103,13 +105,14 @@ stock RegisterPlayer(playerid, const password[])
         } else {
             db_free_result(result);
 
-            new pass[129];
+            new pass[129], ip[16];
             WP_Hash(pass, sizeof(pass), password);
+            GetPlayerIp(playerid, ip, sizeof(ip));
 
             format(query, sizeof(query), "INSERT INTO `"ACCOUNT_DATABASE_TABLE"` (username, password, reg_ip) VALUES('%s','%s','%s')",
                 ReturnPlayerName(playerid),
                 pass,
-                ReturnPlayerIP(playerid)
+                ip
             );
 
             db_query(gDBHandle, query);
@@ -146,7 +149,7 @@ stock LoginPlayer(playerid, const password[])
         if(!db_num_rows(result)) {
             printf("[ERROR - account.inc] Login attempt failed -> '%s'", ReturnPlayerName(playerid));
         } else {
-            gPlayerData[playerid][eUID] = db_get_field_assoc(result, "id");
+            gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
             gPlayerData[playerid][bLoggedIn] = true;
             db_free_result(result);
 
