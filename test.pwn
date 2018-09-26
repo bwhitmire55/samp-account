@@ -22,6 +22,17 @@ public OnGameModeInit() {
 	return 1;
 }
 
+public OnPlayerDisconnect(playerid, reason) {
+
+	gPlayerKills[playerid] = 20;
+	gPlayerDeaths[playerid] = 10;
+	gPlayerHealth[playerid] = 100.0;
+	strcat(gPlayerPhrase[playerid], "test_phrase");
+
+	SaveAccountData(playerid);
+	return 1;
+}
+
 public OnPlayerCommandText(playerid, cmdtext[]) {
 	
 	if(!strcmp(cmdtext, "/register", true, 9)) {

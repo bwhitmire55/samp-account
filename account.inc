@@ -85,11 +85,15 @@ hook OnGameModeExit()
     return 1;
 }
 
-hook OnPlayerDisconnect(playerid, reason) 
+hook OnPlayerConnect(playerid, reason) 
 {
     gPlayerData[playerid][eUID] = 0;
     gPlayerData[playerid][bLoggedIn] = false;
     return 1;
+}
+
+bool: IsPlayerLoggedIn(playerid) {
+    return gPlayerData[playerid][bLoggedIn];
 }
 
 stock RegisterPlayer(playerid, const password[]) 
@@ -218,8 +222,59 @@ stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}
     return 1;
 }
 
-stock bool: IsPlayerLoggedIn(playerid) {
-    return gPlayerData[playerid][bLoggedIn];
+stock SaveAccountData(playerid) 
+{
+    if(!IsPlayerLoggedIn(playerid))
+        return 0;
+
+    new 
+        query[1028] = "UPDATE `"ACCOUNT_DATABASE_TABLE"` SET ",
+        addr,
+        bool: updated;
+
+    for(new i = 0; i < ACCOUNT_MAX_COLUMNS; i++) {
+        if((addr = gAccountData[i][eAddress]) != 0) {
+
+            updated = true;
+            strcat(query, gAccountData[i][eName]);
+            strcat(query, "=");
+
+            new tmp[129];
+
+            switch(gAccountData[i][eType]) {
+                case TYPE_INT: {
+                    format(tmp, sizeof(tmp), "%i", @ptr[addr][playerid]);
+                }
+                case TYPE_FLOAT: {
+                    format(tmp, sizeof(tmp), "%f", @ptr[addr][playerid]);
+                }
+                case TYPE_STRING: {
+                    format(tmp, sizeof(tmp), "'%s'", @ptr[addr, playerid]);
+                }
+                default: {
+                    printf("[ERROR - account.inc] Invalid type passed to 'SaveAccountData' (%i)", _:gAccountData[i][eType]);
+                    return 0;
+                }
+            }
+
+            strcat(query, tmp);
+            strcat(query, ",");
+        }
+    }
+
+    // data added to the query?
+    if(updated) {
+        // delete the last comma
+        query[strlen(query)-1] = EOS;
+
+        strcat(query, " WHERE username = '");
+        strcat(query, ReturnPlayerName(playerid));
+        strcat(query, "'");
+
+        db_query(gDBHandle, query);
+        return 1;
+    }
+    return 0;
 }
 
 static IsValidDB(DB: handle) {
