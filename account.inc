@@ -91,7 +91,7 @@ stock RegisterPlayer(playerid, const password[])
     }
 
     new 
-        query[128],
+        query[256],
         DBResult: result;
 
     format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
@@ -113,6 +113,44 @@ stock RegisterPlayer(playerid, const password[])
             );
 
             db_query(gDBHandle, query);
+            //gPlayerData[playerid][eUID] = 
+            gPlayerData[playerid][bLoggedIn] = true;
+            return 1;
+        }
+        db_free_result(result);
+    }
+    return 0;
+}
+
+stock LoginPlayer(playerid, const password[]) 
+{
+    if(!IsValidDB(gDBHandle)) {
+        print("[ERROR - account.inc] Not connected to the database!");
+        return 0;
+    }
+
+    new 
+        query[128],
+        DBResult: result,
+        pass[129];
+
+    WP_Hash(pass, sizeof(pass), password);
+    format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE name = '%s' AND password = '%s'",
+        ReturnPlayerName(playerid),
+        pass
+    );
+
+    result = db_query(gDBHandle, query);
+
+    if(result) {
+        if(!db_num_rows(result)) {
+            printf("[ERROR - account.inc] Login attempt failed -> '%s'", ReturnPlayerName(playerid));
+        } else {
+            gPlayerData[playerid][eUID] = db_get_field_assoc(result, "id");
+            gPlayerData[playerid][bLoggedIn] = true;
+            db_free_result(result);
+
+            // LoadAccountData()
             return 1;
         }
         db_free_result(result);
