@@ -123,9 +123,13 @@ stock RegisterPlayer(playerid, const password[])
             );
 
             db_query(gDBHandle, query);
+            format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
+            result = db_query(gDBHandle, query);
 
-            //gPlayerData[playerid][eUID] = 
+            gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
             gPlayerData[playerid][bLoggedIn] = true;
+            
+            db_free_result(result);
             return 1;
         }
         db_free_result(result);
