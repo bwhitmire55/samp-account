@@ -85,6 +85,13 @@ hook OnGameModeExit()
     return 1;
 }
 
+hook OnPlayerDisconnect(playerid, reason) 
+{
+    gPlayerData[playerid][eUID] = 0;
+    gPlayerData[playerid][bLoggedIn] = false;
+    return 1;
+}
+
 stock RegisterPlayer(playerid, const password[]) 
 {
     if(!IsValidDB(gDBHandle)) {

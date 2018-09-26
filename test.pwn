@@ -23,7 +23,7 @@ public OnGameModeInit() {
 }
 
 public OnPlayerCommandText(playerid, cmdtext[]) {
-
+	
 	if(!strcmp(cmdtext, "/register", true, 9)) {
 		if(IsPlayerLoggedIn(playerid)) 
 			return SendClientMessage(playerid, 0xFF0000FF, "Already logged in!");
@@ -31,7 +31,7 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 		if(!strlen(cmdtext[10])) {
 			return SendClientMessage(playerid, 0xFF0000FF, "Usage: /register <password>");
 		}
-		
+
 		if(!RegisterPlayer(playerid, cmdtext[10])) {
 			SendClientMessage(playerid, 0xFF0000FF, "Username already registered!");
 		} else {
