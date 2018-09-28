@@ -2,6 +2,19 @@
 // account.inc
 //
 
+/*
+ * TO-DO
+ * 
+ * 1) Have OnPlayerDisconnect automatically call SaveAccountData and logout the player
+ * 2) Potentially add support for user interface and/or interaction (cmds & dialogs)
+ * 3) Add GetPlayerUID()
+ * 4) Add LoadAccountData()
+ * 5) Ensure final testing complete
+ * 6) Document API
+ * 7) Update readme.md before release
+ * 8) Add function to 'reset' account data through api call?
+*/
+
 #if defined ACCOUNT_INC 
     #endinput 
 #endif 
@@ -94,6 +107,10 @@ hook OnPlayerConnect(playerid, reason)
 
 bool: IsPlayerLoggedIn(playerid) {
     return gPlayerData[playerid][bLoggedIn];
+}
+
+stock GetPlayerUID(playerid) {
+    return gPlayerData[playerid][eUID];
 }
 
 stock RegisterPlayer(playerid, const password[]) 
