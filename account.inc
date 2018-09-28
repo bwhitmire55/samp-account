@@ -7,7 +7,6 @@
  * 
  * 1) Have OnPlayerDisconnect automatically call SaveAccountData and logout the player
  * 2) Potentially add support for user interface and/or interaction (cmds & dialogs)
- * 3) Add GetPlayerUID()
  * 4) Add LoadAccountData()
  * 5) Ensure final testing complete
  * 6) Document API
@@ -98,7 +97,7 @@ hook OnGameModeExit()
     return 1;
 }
 
-hook OnPlayerConnect(playerid, reason) 
+hook OnPlayerConnect(playerid) 
 {
     gPlayerData[playerid][eUID] = 0;
     gPlayerData[playerid][bLoggedIn] = false;
