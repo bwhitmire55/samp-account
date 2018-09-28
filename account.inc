@@ -7,7 +7,6 @@
  * 
  * 1) Have OnPlayerDisconnect automatically call SaveAccountData and logout the player
  * 2) Potentially add support for user interface and/or interaction (cmds & dialogs)
- * 4) Add LoadAccountData()
  * 5) Ensure final testing complete
  * 6) Document API
  * 7) Update readme.md before release
@@ -185,7 +184,7 @@ stock LoginPlayer(playerid, const password[])
             gPlayerData[playerid][bLoggedIn] = true;
             db_free_result(result);
 
-            // LoadAccountData()
+            LoadAccountData(playerid);
             return 1;
         }
         db_free_result(result);
@@ -289,6 +288,64 @@ stock SaveAccountData(playerid)
 
         db_query(gDBHandle, query);
         return 1;
+    }
+    return 0;
+}
+
+stock LoadAccountData(playerid)
+{
+    if(!IsPlayerLoggedIn(playerid)) {
+        return 0;
+    }
+
+    new 
+        query[1028] = "SELECT ",
+        addr,
+        bool: updated,
+        i;
+
+    for(i = 0; i < ACCOUNT_MAX_COLUMNS; i++) {
+        if((addr = gAccountData[i][eAddress]) != 0) {
+
+            updated = true;
+            strcat(query, gAccountData[i][eName]);
+            strcat(query, ",");
+        }
+    }
+    
+    if(updated) {
+        query[strlen(query)-1] = EOS;
+        
+        strcat(query, " FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '");
+        strcat(query, ReturnPlayerName(playerid));
+        strcat(query, "'");
+       
+        new DBResult: result = db_query(gDBHandle, query);
+
+        if(result) {
+            if(db_num_rows(result)) {
+                for(i = 0; i < ACCOUNT_MAX_COLUMNS; i++) {
+                    if((addr = gAccountData[i][eAddress]) != 0) {                     
+                        switch(gAccountData[i][eType]) {
+                            case TYPE_INT: {
+                                @ptr[addr][playerid] = db_get_field_assoc_int(result, gAccountData[i][eName]);
+                            }
+                            case TYPE_FLOAT: {
+                                @ptr[addr][playerid] = db_get_field_assoc_float(result, gAccountData[i][eName]);
+                            }
+                            case TYPE_STRING: {
+                                new tmp[129];
+                                db_get_field_assoc(result, gAccountData[i][eName], tmp, sizeof(tmp));
+                                strcat(@ptr[addr, playerid], tmp, sizeof(tmp));
+                            }
+                        }
+                    }
+                }
+            }
+
+            db_free_result(result);
+            return 1;
+        }
     }
     return 0;
 }

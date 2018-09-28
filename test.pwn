@@ -35,6 +35,18 @@ public OnPlayerDisconnect(playerid, reason) {
 
 public OnPlayerCommandText(playerid, cmdtext[]) {
 	
+	if(!strcmp(cmdtext, "/stats", true)) {
+		new string[128];
+		format(string, sizeof(string), "Kills: %i | Deaths: %i | Health: %0.2f, Phrase: %s",
+			gPlayerKills[playerid],
+			gPlayerDeaths[playerid],
+			gPlayerHealth[playerid],
+			gPlayerPhrase[playerid]
+		);
+		SendClientMessage(playerid, 0x00FF00FF, string);
+		return 1;
+	}
+
 	if(!strcmp(cmdtext, "/register", true, 9)) {
 		if(IsPlayerLoggedIn(playerid)) 
 			return SendClientMessage(playerid, 0xFF0000FF, "Already logged in!");
