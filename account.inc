@@ -11,6 +11,7 @@
  * 6) Document API
  * 7) Update readme.md before release
  * 8) Add function to 'reset' account data through api call?
+ * 9) Work-around for line 335 tag mismatch
 */
 
 #if defined ACCOUNT_INC 
@@ -237,7 +238,7 @@ stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}
     return 1;
 }
 
-stock SaveAccountData(playerid) 
+static stock SaveAccountData(playerid) 
 {
     if(!IsPlayerLoggedIn(playerid))
         return 0;
@@ -292,7 +293,7 @@ stock SaveAccountData(playerid)
     return 0;
 }
 
-stock LoadAccountData(playerid)
+static stock LoadAccountData(playerid)
 {
     if(!IsPlayerLoggedIn(playerid)) {
         return 0;
