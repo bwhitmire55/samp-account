@@ -97,8 +97,9 @@ hook OnGameModeExit()
     return 1;
 }
 
-hook OnPlayerConnect(playerid) 
+hook OnPlayerDisconnect(playerid, reason)
 {
+    SaveAccountData(playerid);
     gPlayerData[playerid][eUID] = 0;
     gPlayerData[playerid][bLoggedIn] = false;
     return 1;
