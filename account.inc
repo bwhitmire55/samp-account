@@ -2,18 +2,6 @@
 // account.inc
 //
 
-/*
- * TO-DO
- * 
- * 1) Have OnPlayerDisconnect automatically call SaveAccountData and logout the player
- * 2) Potentially add support for user interface and/or interaction (cmds & dialogs)
- * 5) Ensure final testing complete
- * 6) Document API
- * 7) Update readme.md before release
- * 8) Add function to 'reset' account data through api call?
- * 9) Work-around for line 335 tag mismatch
-*/
-
 #if defined ACCOUNT_INC 
     #endinput 
 #endif 
@@ -333,7 +321,7 @@ static stock LoadAccountData(playerid)
                                 @ptr[addr][playerid] = db_get_field_assoc_int(result, gAccountData[i][eName]);
                             }
                             case TYPE_FLOAT: {
-                                @ptr[addr][playerid] = db_get_field_assoc_float(result, gAccountData[i][eName]);
+                                FloatFixCall(addr, playerid, db_get_field_assoc_float(result, gAccountData[i][eName]));
                             }
                             case TYPE_STRING: {
                                 new tmp[129];
@@ -377,4 +365,10 @@ static CreateDefaultTable() {
             reg_ip TEXT \
         );");
     }
+}
+
+// Function to supress a tag mismatch warning due to float assignment via @ptr
+static FloatFixCall({Float,_}:...) {
+    @ptr[getarg(0)][getarg(1)] = getarg(2);
+    //@ptr[address][playerid] = value;
 }

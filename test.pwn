@@ -22,11 +22,10 @@ public OnGameModeInit() {
 	return 1;
 }
 
-public OnPlayerDisconnect(playerid, reason) {
-
+public OnPlayerConnect(playerid) {
 	gPlayerKills[playerid] = 20;
 	gPlayerDeaths[playerid] = 10;
-	gPlayerHealth[playerid] = 100.0;
+	gPlayerHealth[playerid] = 80.25;
 	strcat(gPlayerPhrase[playerid], "test_phrase");
 	return 1;
 }
