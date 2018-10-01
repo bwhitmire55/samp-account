@@ -22,11 +22,22 @@ public OnGameModeInit() {
 	return 1;
 }
 
-public OnPlayerConnect(playerid) {
-	gPlayerKills[playerid] = 20;
-	gPlayerDeaths[playerid] = 10;
-	gPlayerHealth[playerid] = 80.25;
-	strcat(gPlayerPhrase[playerid], "test_phrase");
+public OnPlayerRegister(playerid) {
+	SendClientMessageToAll(0x00FF00FF, "A new member has joined the server!");
+	return 1;
+}
+
+public OnPlayerLogin(playerid) {
+	SendClientMessageToAll(0x00FF00FF, "An existing member has returned!");
+	return 1;
+}
+
+public OnPlayerDeath(playerid, killerid, reason) {
+	gPlayerDeaths[playerid]++;
+
+	if(IsPlayerLoggedIn(killerid)) {
+		gPlayerKills[killerid]++;
+	}
 	return 1;
 }
 
