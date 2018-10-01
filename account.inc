@@ -139,6 +139,8 @@ stock RegisterPlayer(playerid, const password[])
             gPlayerData[playerid][bLoggedIn] = true;
             
             db_free_result(result);
+
+            CallLocalFunction("OnPlayerRegister", "i", playerid);
             return 1;
         }
         db_free_result(result);
@@ -175,6 +177,8 @@ stock LoginPlayer(playerid, const password[])
             db_free_result(result);
 
             LoadAccountData(playerid);
+
+            CallLocalFunction("OnPlayerLogin", "i", playerid);
             return 1;
         }
         db_free_result(result);
@@ -372,3 +376,6 @@ static FloatFixCall({Float,_}:...) {
     @ptr[getarg(0)][getarg(1)] = getarg(2);
     //@ptr[address][playerid] = value;
 }
+
+forward OnPlayerRegister(playerid);
+forward OnPlayerLogin(playerid);
