@@ -29,17 +29,6 @@ native WP_Hash(buffer[], len, const str[]);
     #define ACCOUNT_MAX_COLUMN_NAME     (20)
 #endif
 
-/*
-#if defined ACCOUNT_PASSWORD_MIN || defined ACCOUNT_PASSWORD_MAX
-    #if !defined ACCOUNT_PASSWORD_MIN || !defined ACCOUNT_PASSWORD_MAX
-        #error "Must define both 'ACCOUNT_PASSWORD_MIN' and 'ACCOUNT_PASSWORD_MAX' together"
-    #endif
-#endif 
-
-#if !defined ACCOUNT_USE_DIALOGS && !defined ACCOUNT_USE_CMDS 
-    #error "Must define either 'ACCOUNT_USE_DIALOGS' or 'ACCOUNT_USE_COMMANDS' (or both) for account registration"
-#endif 
-*/
 enum Types 
 {
     TYPE_INT,
