@@ -191,7 +191,7 @@ All of these can be redefined to suite your script
 
 ## Improvements / Updates
 
-In the future, I may extend this to optionally include predefined commands or dialogs for the user accounts. 
+In the future, I may extend this to optionally include predefined commands or dialogs for the user accounts. Based on reception, I may also have an option to save to a MySQL database via plugin, or files for very simple accounts.
 
 ## Testing
 
