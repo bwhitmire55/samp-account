@@ -25,6 +25,9 @@ And finally, maintaining your version number`:
 
 Happy Pawning!
 -->
+samp-account was created to allow extensive user-account systems to be streamlined by not worrying about implementation details. This means we can have a fully working user account system, with data loaded from a database, and stored to a database, all with one function call.
+
+samp-account uses the SA:MP native SQLite database system for storage, Slice's pointers library for data binding, and Y_Less' YSI hooks library for callback hooking.
 
 ## Installation
 
@@ -40,6 +43,59 @@ Include in your code and begin using the library:
 #include <account>
 ```
 
+## Functions
+
+```pawn
+stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}:...)
+```
+PARAMS:
+name - The name of the database column to store the data
+type - The psuedo-type of the data (TYPE_INT, TYPE_FLOAT, TYPE_STRING)
+{Float,_}:... - The variable to store the data
+
+RETURNS:
+1 on success, otherwise 0
+
+```pawn
+stock RegisterPlayer(playerid, const password[]) 
+```
+PARAMS:
+playerid - The playerid attempting to be registered
+password - The password of the player (in plain text)
+
+RETURNS:
+1 on success, otherwise 0
+
+```pawn
+stock LoginPlayer(playerid, const password[])
+```
+PARAMS:
+playerid - The playerid attempting to be logged in
+password - The password of the player (in plain text)
+
+RETURNS:
+1 on success, otherwise 0
+
+```pawn
+bool: IsPlayerLoggedIn(playerid)
+```
+PARAMS:
+playerid - The playerid to check
+
+RETURNS:
+1 (true) if logged-in, otherwise 0 (false) 
+
+```pawn
+stock GetPlayerUID(playerid) {
+    return gPlayerData[playerid][eUID];
+}
+```
+PARAMS:
+playerid - The playerid to check
+
+RETURNS:
+The unique-ID of the player in the database if exists, otherwise 0
+
 ## Usage
 
 Simply create variables in which to store your players' data
@@ -48,7 +104,7 @@ Simply create variables in which to store your players' data
 new
     gPlayerKills[MAX_PLAYERS],
     gPlayerHealth[MAX_PLAYERS],
-    gPlayerNickname[MAX_PLAYERS];
+    gPlayerNickname[MAX_PLAYERS][MAX_PLAYER_NAME];
 ```
 
 Add that data to the system (and database) via AddAccountData
@@ -63,8 +119,11 @@ public OnGameModeInit() {
 }
 ```
 
-And that's it! The data for logged-in users is automatically retrieved from, or loaded to, those variables upon
-the player logging-in or leaving the server. You can manipulate the variables in whatever way you see fit; i.e.
+And that's it! Anytime a user logs into their account, their information will be loaded from the database and into the corresponding variables. Likewise for disconnecting, their data will be updated inside the database.
+
+NOTE: The variables do no reset themselves, so you should zero-out their values upon the player exiting the server.
+
+You are free to use the variables as normal with no effect:
 
 ```pawn
 public OnPlayerDeath(playerid, killerid, reason) {
@@ -72,8 +131,6 @@ public OnPlayerDeath(playerid, killerid, reason) {
     return 1;
 }
 ```
-
-And the correct value will be saved to the database. And also loaded from the database, to the variable, upon login.
 
 This library also includes two callbacks, OnPlayerRegister and OnPlayerLogin.
 
