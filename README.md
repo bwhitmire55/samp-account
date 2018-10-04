@@ -48,53 +48,51 @@ Include in your code and begin using the library:
 ```pawn
 stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}:...)
 ```
-PARAMS:
-name - The name of the database column to store the data
-type - The psuedo-type of the data (TYPE_INT, TYPE_FLOAT, TYPE_STRING)
-{Float,_}:... - The variable to store the data
-
-RETURNS:
-1 on success, otherwise 0
+PARAMS:  
+name - The name of the database column to store the data  
+type - The psuedo-type of the data (TYPE_INT, TYPE_FLOAT, TYPE_STRING)  
+{Float,_}:... - The variable to store the data  
+  
+RETURNS:  
+1 on success, otherwise 0  
 
 ```pawn
 stock RegisterPlayer(playerid, const password[]) 
 ```
-PARAMS:
-playerid - The playerid attempting to be registered
-password - The password of the player (in plain text)
-
-RETURNS:
-1 on success, otherwise 0
+PARAMS:  
+playerid - The playerid attempting to be registered  
+password - The password of the player (in plain text)  
+  
+RETURNS:  
+1 on success, otherwise 0  
 
 ```pawn
 stock LoginPlayer(playerid, const password[])
 ```
-PARAMS:
-playerid - The playerid attempting to be logged in
-password - The password of the player (in plain text)
-
-RETURNS:
-1 on success, otherwise 0
+PARAMS:  
+playerid - The playerid attempting to be logged in  
+password - The password of the player (in plain text)  
+  
+RETURNS:  
+1 on success, otherwise 0  
 
 ```pawn
 bool: IsPlayerLoggedIn(playerid)
 ```
-PARAMS:
-playerid - The playerid to check
-
-RETURNS:
-1 (true) if logged-in, otherwise 0 (false) 
-
+PARAMS:  
+playerid - The playerid to check  
+  
+RETURNS:  
+1 (true) if logged-in, otherwise 0 (false)   
+  
 ```pawn
-stock GetPlayerUID(playerid) {
-    return gPlayerData[playerid][eUID];
-}
+stock GetPlayerUID(playerid)
 ```
-PARAMS:
-playerid - The playerid to check
-
-RETURNS:
-The unique-ID of the player in the database if exists, otherwise 0
+PARAMS:  
+playerid - The playerid to check  
+  
+RETURNS:  
+The unique-ID of the player in the database if exists, otherwise 0  
 
 ## Usage
 
