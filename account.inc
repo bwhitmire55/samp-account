@@ -247,7 +247,7 @@ static stock SaveAccountData(playerid)
                     format(tmp, sizeof(tmp), "%f", @ptr[addr][playerid]);
                 }
                 case TYPE_STRING: {
-                    format(tmp, sizeof(tmp), "'%e'", @ptr[addr, playerid]);
+                    format(tmp, sizeof(tmp), "'%q'", @ptr[addr, playerid]);
                 }
                 default: {
                     printf("[ERROR - account.inc] Invalid type passed to 'SaveAccountData' (%i)", _:gAccountData[i][eType]);
@@ -270,6 +270,7 @@ static stock SaveAccountData(playerid)
         strcat(query, "'");
 
         db_query(gDBHandle, query);
+        print(query);
         return 1;
     }
     return 0;
