@@ -1,0 +1,205 @@
+[COLOR="#FF4700"][SIZE="7"][B]samp-account[/B][/SIZE][/COLOR]
+
+[URL="https://github.com/bwhitmire55/samp-account"][IMG]https://shields.southcla.ws/badge/sampctl-samp--account-2f2f2f.svg?style=for-the-badge[/IMG][/URL]
+
+samp-account was created to allow extensive user-account systems to be streamlined by not worrying about implementation details. This means we can have a fully working user account system, with data loaded from a database, and stored to a database, all with one function call.
+
+samp-account uses the SA:MP native SQLite database system for storage, Slice’s pointers library for data binding, and Y_Less’ YSI hooks library for callback hooking.
+
+[COLOR="RoyalBlue"][SIZE="6"][B]Installation[/B][/SIZE][/COLOR]
+
+Simply install to your project:
+
+[CODE]
+sampctl package install bwhitmire55/samp-account
+[/CODE]
+
+Include in your code and begin using the library:
+
+[CODE]
+[COLOR="Blue"]#include <account>[/COLOR]
+[/CODE]
+
+[COLOR="RoyalBlue"][SIZE="6"][B]Functions[/B][/SIZE][/COLOR]
+
+[CODE]
+[COLOR="Green"]/*
+PARAMS:  
+name - The name of the database column to store the data  
+type - The psuedo-type of the data (TYPE_INT, TYPE_FLOAT, TYPE_STRING)  
+{Float,_}:... - The variable to store the data  
+  
+RETURNS:  
+1 on success, otherwise 0  
+*/[/COLOR]
+[COLOR="DeepSkyBlue"]stock[/COLOR] AddAccountData([COLOR="DeepSkyBlue"]const[/COLOR] name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}:...)
+[/CODE]
+
+[CODE]
+[COLOR="Green"]/*
+PARAMS:  
+playerid - The playerid attempting to be registered  
+password - The password of the player (in plain text)  
+  
+RETURNS:  
+1 on success, otherwise 0  
+*/[/COLOR]
+[COLOR="DeepSkyBlue"]stock[/COLOR] RegisterPlayer(playerid, [COLOR="DeepSkyBlue"]const[/COLOR] password[])
+[/CODE]
+
+[CODE]
+[COLOR="Green"]/*
+PARAMS:  
+playerid - The playerid attempting to be logged in  
+password - The password of the player (in plain text)  
+  
+RETURNS:  
+1 on success, otherwise 0 
+*/[/COLOR]
+[COLOR="DeepSkyBlue"]stock[/COLOR] LoginPlayer(playerid, [COLOR="DeepSkyBlue"]const[/COLOR] password[])
+[/CODE]
+
+[CODE]
+[COLOR="Green"]/*
+PARAMS:  
+playerid - The playerid to check  
+  
+RETURNS:  
+1 (true) if logged-in, otherwise 0 (false) 
+*/[/COLOR]
+bool: IsPlayerLoggedIn(playerid)
+[/CODE]
+
+[CODE]
+[COLOR="Green"]/*
+PARAMS:  
+playerid - The playerid to check  
+  
+RETURNS:  
+The unique-ID of the player in the database if exists, otherwise 0  
+*/[/COLOR]
+[COLOR="DeepSkyBlue"]stock[/COLOR] GetPlayerUID(playerid)
+[/CODE]
+
+[COLOR="RoyalBlue"][SIZE="6"][B]Usage[/B][/SIZE][/COLOR]
+
+Simply create variables in which to store your players’ data
+
+[CODE]
+[COLOR="Blue"]new[/COLOR]
+    gPlayerKills[MAX_PLAYERS],
+    gPlayerHealth[MAX_PLAYERS],
+    gPlayerNickname[MAX_PLAYERS][MAX_PLAYER_NAME];
+[/CODE]
+
+Add that data to the system (and database) via AddAccountData
+
+[CODE]
+[COLOR="DeepSkyBlue"]public[/COLOR] OnGameModeInit() {
+    AddAccountData([COLOR="Purple"]"kills"[/COLOR], TYPE_INT, gPlayerKills);
+    AddAccountData([COLOR="Purple"]"health"[/COLOR], TYPE_FLOAT, gPlayerHealth);
+    AddAccountData([COLOR="Purple"]"nickname"[/COLOR], TYPE_STRING, gPlayerNickname);
+
+    return [COLOR="Purple"]1[/COLOR];
+}
+[/CODE]
+
+Anytime a user logs into their account, their information will be loaded from the database and into the corresponding variables. Likewise for disconnecting, their data will be updated inside the database.
+
+NOTE: The variables do no reset themselves, so you should zero-out their values upon the player exiting the server.
+
+You are free to use the variables as normal with no effect:
+
+[CODE]
+[COLOR="DeepSkyBlue"]public[/COLOR] OnPlayerDeath(playerid, killerid, reason) {
+    gPlayerDeaths[playerid]++;
+    return [COLOR="Purple"]1[/COLOR];
+}
+[/CODE]
+
+Now we just need to call RegisterPlayer or LoginPlayer. This will most likely be done via command/dialog
+
+[CODE]
+ZCMD:register(playerid, params[]) {
+    [COLOR="Blue"]if[/COLOR](IsPlayerLoggedIn(playerid)) {
+        return SendClientMessage(playerid, [COLOR="Purple"]0[/COLOR]xFF[COLOR="Purple"]0000[/COLOR]FF, [COLOR="Purple"]"Already logged-in!"[/COLOR]);
+    }
+
+    [COLOR="Blue"]if[/COLOR](isnull(params)) {
+        return SendClientMessage(playerid, [COLOR="Purple"]0[/COLOR]xFFFF[COLOR="Purple"]00[/COLOR]FF, [COLOR="Purple"]"Usage: /register <password>"[/COLOR]);
+    }
+
+    [COLOR="Blue"]if[/COLOR](RegisterPlayer(playerid, params)) {
+        SendClientMessage(playerid, [COLOR="Purple"]0[/COLOR]x[COLOR="Purple"]00[/COLOR]FF[COLOR="Purple"]00[/COLOR]FF, [COLOR="Purple"]"You have successfully registered an account!"[/COLOR]);
+    } [COLOR="Blue"]else[/COLOR] {
+        [COLOR="Green"]// RegisterPlayer will return 0 if the account already exists, or there is an issue with the database.[/COLOR]
+        [COLOR="Green"]// For this example, we'll assume the former.[/COLOR]
+        SendClientMessage(playerid, [COLOR="Purple"]0[/COLOR]xFF[COLOR="Purple"]0000[/COLOR]FF, [COLOR="Purple"]"Error! This username is already registered."[/COLOR]);
+    }
+    return [COLOR="Purple"]1[/COLOR];
+}
+[/CODE]
+
+And that’s it! You now have a fully working account system, which can store any data you like, without touching a database or file. Nice!
+
+[COLOR="RoyalBlue"][SIZE="6"][B]Callbacks[/B][/SIZE][/COLOR]
+
+This library also includes two callbacks, OnPlayerRegister and OnPlayerLogin.
+
+[CODE]
+[COLOR="DeepSkyBlue"]public[/COLOR] OnPlayerRegister(playerid) {
+    SendClientMessageToAll([COLOR="Purple"]0[/COLOR]x[COLOR="Purple"]00[/COLOR]FF[COLOR="Purple"]00[/COLOR]FF, [COLOR="Purple"]"A [COLOR="Blue"]new[/COLOR] member has registered!"[/COLOR]);
+    return [COLOR="Purple"]1[/COLOR];
+}
+
+[COLOR="DeepSkyBlue"]public[/COLOR] OnPlayerLogin(playerid) {
+    SendClientMessageToAll([COLOR="Purple"]0[/COLOR]x[COLOR="Purple"]00[/COLOR]FF[COLOR="Purple"]00[/COLOR]FF, [COLOR="Purple"]"An existing member has rejoined us!"[/COLOR]);
+    return [COLOR="Purple"]1[/COLOR];
+}
+[/CODE]
+
+[COLOR="RoyalBlue"][SIZE="6"][B]Macros[/B][/SIZE][/COLOR]
+
+All macros are as followed:
+
+[CODE]
+[COLOR="Green"]// The database file[/COLOR]
+[COLOR="Blue"]#define ACCOUNT_DATABASE        [COLOR="Purple"]"mydatabase.db"[/COLOR][/COLOR]
+[/CODE]
+
+[CODE]
+[COLOR="Green"]// The database table to store the account data[/COLOR]
+[COLOR="Blue"]#define ACCOUNT_DATABASE_TABLE  [COLOR="Purple"]"mydatabasetable"[/COLOR][/COLOR]
+[/CODE]
+
+[CODE]
+[COLOR="Green"]// The amount of 'data' you wish to store[/COLOR]
+[COLOR="Green"]// i.e., how many times you will use AddAccountData[/COLOR]
+[COLOR="Blue"]#define ACCOUNT_MAX_COLUMNS     (100)[/COLOR]
+[/CODE]
+
+[CODE]
+[COLOR="Green"]// The maximum length of a column name in the database[/COLOR]
+[COLOR="Blue"]#define ACCOUNT_MAX_COLUMN_NAME (24)[/COLOR]
+[/CODE]
+
+All of these can be redefined to suite your script
+
+[CODE]
+[COLOR="Blue"]#define ACCOUNT_DATABASE        [COLOR="Purple"]"COD-DB.db"[/COLOR][/COLOR]
+[COLOR="Blue"]#define ACCOUNT_DATABASE_TABLE  [COLOR="Purple"]"users"[/COLOR][/COLOR]
+[COLOR="Blue"]#include <account>[/COLOR]
+[/CODE]
+
+[COLOR="RoyalBlue"][SIZE="6"][B]Improvements / Updates[/B][/SIZE][/COLOR]
+
+In the future, I may extend this to optionally include predefined commands or dialogs for the user accounts. Based on reception, I may also have an option to save to a MySQL database via plugin, or files for very simple accounts.
+
+[COLOR="RoyalBlue"][SIZE="6"][B]Testing[/B][/SIZE][/COLOR]
+
+To test, simply run the package:
+
+[CODE]
+sampctl package run
+[/CODE]
+

@@ -247,7 +247,7 @@ static stock SaveAccountData(playerid)
                     format(tmp, sizeof(tmp), "%f", @ptr[addr][playerid]);
                 }
                 case TYPE_STRING: {
-                    format(tmp, sizeof(tmp), "'%s'", @ptr[addr, playerid]);
+                    format(tmp, sizeof(tmp), "'%e'", @ptr[addr, playerid]);
                 }
                 default: {
                     printf("[ERROR - account.inc] Invalid type passed to 'SaveAccountData' (%i)", _:gAccountData[i][eType]);
@@ -364,6 +364,37 @@ static CreateDefaultTable() {
 static FloatFixCall({Float,_}:...) {
     @ptr[getarg(0)][getarg(1)] = getarg(2);
     //@ptr[address][playerid] = value;
+}
+
+// Credits to Y_Less
+stock DB_Escape(const text[])
+{
+	new
+		ret[MAX_INI_ENTRY_TEXT * 2],
+		ch,
+		i,
+		j;
+	while ((ch = text[i++]) && j < sizeof (ret))
+	{
+		if (ch == '\'')
+		{
+			if (j < sizeof (ret) - 2)
+			{
+				ret[j++] = '\'';
+				ret[j++] = '\'';
+			}
+		}
+		else if (j < sizeof (ret))
+		{
+			ret[j++] = ch;
+		}
+		else
+		{
+			j++;
+		}
+	}
+	ret[sizeof (ret) - 1] = '\0';
+	return ret;
 }
 
 forward OnPlayerRegister(playerid);
