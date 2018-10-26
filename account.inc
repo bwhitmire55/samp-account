@@ -68,6 +68,7 @@ hook OnGameModeInit()
 
 hook OnGameModeExit()
 {
+    OnPlayerDisconnect(playerid, 1);
     if(IsValidDB(gDBHandle)) {
         db_close(gDBHandle);
     }
