@@ -220,7 +220,61 @@ stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}
     return 1;
 }
 
-static stock SaveAccountData(playerid) 
+stock UpdateAccountData(playerid, {Float,_}:...) {
+
+    new 
+        items = numargs() - 1,
+        query[1028] = "UPDATE `"ACCOUNT_DATABASE_TABLE"` SET ",
+        bool: updated,
+        addr;
+
+    if(items) {
+        for(new arg = 1; arg <= items; arg++) {
+            for(new data = 0; data < ACCOUNT_MAX_COLUMNS; data++) {
+                if((addr = gAccountData[data][eAddress]) == GetArgumentAddress(arg)) {
+
+                    new tmp[129];
+
+                    updated = true;
+                    strcat(query, gAccountData[data][eName]);
+                    strcat(query, "=");
+
+                    switch(gAccountData[data][eType]) {
+                        case TYPE_INT: {
+                            format(tmp, sizeof(tmp), "%i", @ptr[addr][playerid]);
+                        }
+                        case TYPE_FLOAT: {
+                            format(tmp, sizeof(tmp), "%f", @ptr[addr][playerid]);
+                        }
+                        case TYPE_STRING: {
+                            format(tmp, sizeof(tmp), "%s", @ptr[addr, playerid]);
+                        }
+                    }
+
+                    strcat(query, tmp);
+                    strcat(query, ",");
+                }
+            }
+        }
+
+        // data added to the query?
+        if(updated) {
+            // delete the last comma
+            query[strlen(query)-1] = EOS;
+
+            strcat(query, " WHERE username = '");
+            strcat(query, ReturnPlayerName(playerid));
+            strcat(query, "'");
+
+            db_query(gDBHandle, query);
+            print(query);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+static SaveAccountData(playerid) 
 {
     if(!IsPlayerLoggedIn(playerid))
         return 0;
@@ -275,7 +329,7 @@ static stock SaveAccountData(playerid)
     return 0;
 }
 
-static stock LoadAccountData(playerid)
+static LoadAccountData(playerid)
 {
     if(!IsPlayerLoggedIn(playerid)) {
         return 0;

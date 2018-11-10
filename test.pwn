@@ -86,5 +86,15 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 		}
 		return 1;
 	}
+
+	if(!strcmp(cmdtext, "/savekills", true)) {
+		UpdateAccountData(playerid, gPlayerKills);
+		return 1;
+	}
+
+	if(!strcmp(cmdtext, "/savealot", true)) {
+		UpdateAccountData(playerid, gPlayerKills, gPlayerHealth, gPlayerPhrase, gPlayerDeaths);
+		return 1;
+	}
 	return 0;
 }
