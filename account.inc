@@ -74,6 +74,24 @@ hook OnGameModeExit()
     return 1;
 }
 
+hook OnPlayerConnect(playerid) {
+
+    new 
+        query[256],
+        DBResult: result;
+
+    format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
+    result = db_query(gDBHandle, query);
+
+    if(result) {
+        if(db_num_rows(result)) {
+            gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
+        }
+        db_free_result(result);
+    }
+    return 1;
+}
+
 hook OnPlayerDisconnect(playerid, reason)
 {
     SaveAccountData(playerid);
