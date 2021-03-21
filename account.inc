@@ -9,7 +9,6 @@
 
 #include <a_samp>
 #include <pointers>
-#include <YSI\y_hooks>
 
 native WP_Hash(buffer[], len, const str[]);
 
@@ -54,7 +53,7 @@ static
     gAccountData[ACCOUNT_MAX_COLUMNS][eAccount],
     DB: gDBHandle;
 
-hook OnGameModeInit()
+public OnGameModeInit()
 {
     gDBHandle = db_open(ACCOUNT_DATABASE);
 
@@ -63,18 +62,34 @@ hook OnGameModeInit()
     } else {
         CreateDefaultTable();
     }
-    return 1;
+    return CallLocalFunction("acc_OnGameModeInit", "", "");
 }
 
-hook OnGameModeExit()
+#if defined _ALS_OnGameModeInit
+    #undef OnGameModeInit 
+#else 
+    #define _ALS_OnGameModeInit
+#endif
+#define OnGameModeInit acc_OnGameModeInit
+forward acc_OnGameModeInit();
+
+public OnGameModeExit()
 {
     if(IsValidDB(gDBHandle)) {
         db_close(gDBHandle);
     }
-    return 1;
+    return CallLocalFunction("acc_OnGameModeExit", "", "");
 }
 
-hook OnPlayerConnect(playerid) {
+#if defined _ALS_OnGameModeExit
+    #undef OnGameModeExit
+#else 
+    #define _ALS_OnGameModeExit
+#endif
+#define OnGameModeExit acc_OnGameModeExit
+forward acc_OnGameModeExit();
+
+public OnPlayerConnect(playerid) {
 
     new 
         query[256],
@@ -89,16 +104,32 @@ hook OnPlayerConnect(playerid) {
         }
         db_free_result(result);
     }
-    return 1;
+    return CallLocalFunction("acc_OnPlayerConnect", "i", playerid);
 }
 
-hook OnPlayerDisconnect(playerid, reason)
+#if defined _ALS_OnPlayerConnect
+    #undef OnPlayerConnect
+#else 
+    #define _ALS_OnPlayerConnect
+#endif
+#define OnPlayerConnect acc_OnPlayerConnect
+forward acc_OnPlayerConnect(playerid);
+
+public OnPlayerDisconnect(playerid, reason)
 {
     SaveAccountData(playerid);
     gPlayerData[playerid][eUID] = 0;
     gPlayerData[playerid][bLoggedIn] = false;
-    return 1;
+    return CallLocalFunction("acc_OnPlayerDisconnect", "ii", playerid, reason);
 }
+
+#if defined _ALS_OnPlayerDisconnect
+    #undef OnPlayerDisconnect
+#else 
+    #define _ALS_OnPlayerDisconnect
+#endif
+#define OnPlayerDisconnect acc_OnPlayerDisconnect
+forward acc_OnPlayerDisconnect(playerid, reason);
 
 bool: IsPlayerLoggedIn(playerid) {
     return gPlayerData[playerid][bLoggedIn];
@@ -436,6 +467,12 @@ static CreateDefaultTable() {
 static FloatFixCall({Float,_}:...) {
     @ptr[getarg(0)][getarg(1)] = getarg(2);
     //@ptr[address][playerid] = value;
+}
+
+static ReturnPlayerName(playerid) {
+    new name[MAX_PLAYER_NAME + 1];
+    GetPlayerName(playerid, name, sizeof(name));
+    return name;
 }
 
 forward OnPlayerRegister(playerid);

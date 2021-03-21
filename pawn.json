@@ -6,8 +6,6 @@
 	"dependencies": [
 		"sampctl/samp-stdlib",
 		"SAMP-git/pointers",
-		"pawn-lang/YSI-Includes",
-		"Southclaws/pawn-whirlpool",
 		"Southclaws/samp-whirlpool"
 	],
 	"runtime": {
