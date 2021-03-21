@@ -4,7 +4,7 @@
 
 samp-account was created to allow extensive user-account systems to be streamlined by not worrying about implementation details. This means we can have a fully working user account system, with data loaded from a database, and stored to a database, all with one function call.
 
-samp-account uses the SA:MP native SQLite database system for storage, Slice's pointers library for data binding, Y_Less' YSI hooks library for callback hooking, and Y_Less' Whirlpool plugin for password hashing.
+samp-account uses the SA:MP native SQLite database system for storage, Slice's pointers library for data binding, and Y_Less' Whirlpool plugin for password hashing.
 
 ## Installation
 
