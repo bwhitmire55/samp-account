@@ -2,6 +2,9 @@
 
 #include "../inc/account.inc"
 
+// extensions
+#include "../inc/ext/ext-auto-login.inc"
+
 new 
 	gPlayerKills[MAX_PLAYERS],
 	gPlayerDeaths[MAX_PLAYERS],
@@ -29,6 +32,11 @@ public OnPlayerRegister(playerid) {
 
 public OnPlayerLogin(playerid) {
 	SendClientMessageToAll(0x00FF00FF, "An existing member has returned!");
+	
+	new ip[16], buffer[128];
+	Account_GetPlayerRegistrationIp(playerid, ip, sizeof(ip));
+	format(buffer, sizeof(buffer), "You registered at some point with the IP %s", ip);
+	SendClientMessage(playerid, 0x00FF00FF, buffer);
 	return 1;
 }
 

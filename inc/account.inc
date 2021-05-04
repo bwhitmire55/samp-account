@@ -211,12 +211,9 @@ stock Account_LoginPlayer(playerid, const password[])
             printf("[ERROR - account.inc] Login attempt failed -> '%s'", ReturnPlayerName(playerid));
         } else {
             gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
-            gPlayerData[playerid][bLoggedIn] = true;
             db_free_result(result);
 
-            Account_LoadPlayerData(playerid);
-
-            CallLocalFunction("OnPlayerLogin", "i", playerid);
+            CallLocalFunction("Account_LoadPlayerData", "i", playerid);
             return 1;
         }
         db_free_result(result);
@@ -378,12 +375,11 @@ static Account_SavePlayerData(playerid)
     return 0;
 }
 
-static Account_LoadPlayerData(playerid)
+// made public for ext-auto-login.inc to bypass password requirement
+// should not be called by the user
+forward Account_LoadPlayerData(playerid);
+public Account_LoadPlayerData(playerid)
 {
-    if(!Account_IsPlayerLoggedIn(playerid)) {
-        return 0;
-    }
-
     new 
         query[1028] = "SELECT ",
         addr,
@@ -430,6 +426,8 @@ static Account_LoadPlayerData(playerid)
             }
 
             db_free_result(result);
+            gPlayerData[playerid][bLoggedIn] = true;
+            CallLocalFunction("OnPlayerLogin", "i", playerid);
             return 1;
         }
     }
