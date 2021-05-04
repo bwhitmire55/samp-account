@@ -117,7 +117,7 @@ forward acc_OnPlayerConnect(playerid);
 
 public OnPlayerDisconnect(playerid, reason)
 {
-    SaveAccountData(playerid);
+    Account_SavePlayerData(playerid);
     gPlayerData[playerid][eUID] = 0;
     gPlayerData[playerid][bLoggedIn] = false;
     return CallLocalFunction("acc_OnPlayerDisconnect", "ii", playerid, reason);
@@ -131,15 +131,15 @@ public OnPlayerDisconnect(playerid, reason)
 #define OnPlayerDisconnect acc_OnPlayerDisconnect
 forward acc_OnPlayerDisconnect(playerid, reason);
 
-bool: IsPlayerLoggedIn(playerid) {
+bool: Account_IsPlayerLoggedIn(playerid) {
     return gPlayerData[playerid][bLoggedIn];
 }
 
-stock GetPlayerUID(playerid) {
+stock Account_GetPlayerUID(playerid) {
     return gPlayerData[playerid][eUID];
 }
 
-stock RegisterPlayer(playerid, const password[]) 
+stock Account_RegisterPlayer(playerid, const password[]) 
 {
     if(!IsValidDB(gDBHandle)) {
         print("[ERROR - account.inc] Not connected to the database!");
@@ -186,7 +186,7 @@ stock RegisterPlayer(playerid, const password[])
     return 0;
 }
 
-stock LoginPlayer(playerid, const password[]) 
+stock Account_LoginPlayer(playerid, const password[]) 
 {
     if(!IsValidDB(gDBHandle)) {
         print("[ERROR - account.inc] Not connected to the database!");
@@ -214,7 +214,7 @@ stock LoginPlayer(playerid, const password[])
             gPlayerData[playerid][bLoggedIn] = true;
             db_free_result(result);
 
-            LoadAccountData(playerid);
+            Account_LoadPlayerData(playerid);
 
             CallLocalFunction("OnPlayerLogin", "i", playerid);
             return 1;
@@ -224,7 +224,7 @@ stock LoginPlayer(playerid, const password[])
     return 0;
 }
 
-stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}:...)
+stock Account_AddPlayerData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}:...)
 {
     if(numargs() != 3) {
         printf("[ERROR - account.inc] Invalid number of arguments passed to 'AddAccountData' (%i/3)", numargs());
@@ -269,7 +269,7 @@ stock AddAccountData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}
     return 1;
 }
 
-stock UpdateAccountData(playerid, {Float,_}:...) {
+stock Account_UpdatePlayerData(playerid, {Float,_}:...) {
 
     new 
         items = numargs() - 1,
@@ -323,9 +323,9 @@ stock UpdateAccountData(playerid, {Float,_}:...) {
     return 0;
 }
 
-static SaveAccountData(playerid) 
+static Account_SavePlayerData(playerid) 
 {
-    if(!IsPlayerLoggedIn(playerid))
+    if(!Account_IsPlayerLoggedIn(playerid))
         return 0;
 
     new 
@@ -353,7 +353,7 @@ static SaveAccountData(playerid)
                     format(tmp, sizeof(tmp), "'%q'", @ptr[addr, playerid]);
                 }
                 default: {
-                    printf("[ERROR - account.inc] Invalid type passed to 'SaveAccountData' (%i)", _:gAccountData[i][eType]);
+                    printf("[ERROR - account.inc] Invalid type passed to 'Account_SavePlayerData' (%i)", _:gAccountData[i][eType]);
                     return 0;
                 }
             }
@@ -378,9 +378,9 @@ static SaveAccountData(playerid)
     return 0;
 }
 
-static LoadAccountData(playerid)
+static Account_LoadPlayerData(playerid)
 {
-    if(!IsPlayerLoggedIn(playerid)) {
+    if(!Account_IsPlayerLoggedIn(playerid)) {
         return 0;
     }
 

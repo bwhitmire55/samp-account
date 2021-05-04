@@ -15,10 +15,10 @@ main() {
 public OnGameModeInit() {
 	AddPlayerClass(0, 0.00, 0.00, 0.00, 0.00, 0, 0, 0, 0, 0, 0);
 
-	AddAccountData("kills", TYPE_INT, gPlayerKills);
-	AddAccountData("deaths", TYPE_INT, gPlayerDeaths);
-	AddAccountData("health", TYPE_FLOAT, gPlayerHealth);
-	AddAccountData("phrase", TYPE_STRING, gPlayerPhrase);
+	Account_AddPlayerData("kills", TYPE_INT, gPlayerKills);
+	Account_AddPlayerData("deaths", TYPE_INT, gPlayerDeaths);
+	Account_AddPlayerData("health", TYPE_FLOAT, gPlayerHealth);
+	Account_AddPlayerData("phrase", TYPE_STRING, gPlayerPhrase);
 	return 1;
 }
 
@@ -35,7 +35,7 @@ public OnPlayerLogin(playerid) {
 public OnPlayerDeath(playerid, killerid, reason) {
 	gPlayerDeaths[playerid]++;
 
-	if(IsPlayerLoggedIn(killerid)) {
+	if(Account_IsPlayerLoggedIn(killerid)) {
 		gPlayerKills[killerid]++;
 	}
 	return 1;
@@ -56,14 +56,14 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 	}
 
 	if(!strcmp(cmdtext, "/register", true, 9)) {
-		if(IsPlayerLoggedIn(playerid)) 
+		if(Account_IsPlayerLoggedIn(playerid)) 
 			return SendClientMessage(playerid, 0xFF0000FF, "Already logged in!");
 
 		if(!strlen(cmdtext[10])) {
 			return SendClientMessage(playerid, 0xFF0000FF, "Usage: /register <password>");
 		}
 
-		if(!RegisterPlayer(playerid, cmdtext[10])) {
+		if(!Account_RegisterPlayer(playerid, cmdtext[10])) {
 			SendClientMessage(playerid, 0xFF0000FF, "Username already registered!");
 		} else {
 			SendClientMessage(playerid, 0x00FF00FF, "Successfully registered!");
@@ -72,14 +72,14 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 	}
 
 	if(!strcmp(cmdtext, "/login", true, 6)) {
-		if(IsPlayerLoggedIn(playerid))
+		if(Account_IsPlayerLoggedIn(playerid))
 			return SendClientMessage(playerid, 0xFF0000FF, "Already logged in!");
 
 		if(!strlen(cmdtext[7])) {
 			return SendClientMessage(playerid, 0xFF0000FF, "Usage: /login <password>");
 		}
 
-		if(!LoginPlayer(playerid, cmdtext[7])) {
+		if(!Account_LoginPlayer(playerid, cmdtext[7])) {
 			SendClientMessage(playerid, 0xFF0000FF, "Incorrect password!");
 		} else {
 			SendClientMessage(playerid, 0x00FF00FF, "Successfully logged in!");
@@ -88,12 +88,12 @@ public OnPlayerCommandText(playerid, cmdtext[]) {
 	}
 
 	if(!strcmp(cmdtext, "/savekills", true)) {
-		UpdateAccountData(playerid, gPlayerKills);
+		Account_UpdatePlayerData(playerid, gPlayerKills);
 		return 1;
 	}
 
 	if(!strcmp(cmdtext, "/savealot", true)) {
-		UpdateAccountData(playerid, gPlayerKills, gPlayerHealth, gPlayerPhrase, gPlayerDeaths);
+		Account_UpdatePlayerData(playerid, gPlayerKills, gPlayerHealth, gPlayerPhrase, gPlayerDeaths);
 		return 1;
 	}
 	return 0;
