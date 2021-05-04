@@ -457,8 +457,7 @@ static CreateDefaultTable() {
         db_query(gDBHandle, "CREATE TABLE IF NOT EXISTS `"ACCOUNT_DATABASE_TABLE"` ( \
             id INTEGER PRIMARY KEY AUTOINCREMENT, \
             username TEXT, \
-            password BLOB, \
-            reg_ip TEXT \
+            password BLOB \
         );");
     }
 }

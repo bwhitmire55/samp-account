@@ -1,8 +1,8 @@
 {
 	"user": "bwhitmire55",
 	"repo": "samp-account",
-	"entry": "test.pwn",
-	"output": "test.amx",
+	"entry": "tests/test.pwn",
+	"output": "tests/test.amx",
 	"dependencies": [
 		"sampctl/samp-stdlib",
 		"SAMP-git/pointers",
