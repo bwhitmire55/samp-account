@@ -7,10 +7,12 @@
 #endif 
 #define ACCOUNT_INC 
 
+#if defined ACCOUNT_USE_WHIRLPOOL
+    #include "account/impl/impl-whirlpool.inc"
+#endif
+
 #include <a_samp>
 #include <pointers>
-
-native WP_Hash(buffer[], len, const str[]);
 
 #if !defined ACCOUNT_DATABASE 
     #define ACCOUNT_DATABASE            "accounts.db"
