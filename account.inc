@@ -7,8 +7,18 @@
 #endif 
 #define ACCOUNT_INC 
 
-#if defined ACCOUNT_USE_WHIRLPOOL
-    #include "account/impl/impl-whirlpool.inc"
+#if defined ACCOUNT_USE_BCRYPT
+    #include <samp_bcrypt>
+    #if !defined ACCOUNT_BCRYPT_WORK_FACTOR
+        #define ACCOUNT_BCRYPT_WORK_FACTOR      (12)
+    #endif
+    #if !defined ACCOUNT_BCRYPT_THREAD_LIMIT
+        #define ACCOUNT_BCRYPT_THREAD_LIMIT     (3)
+    #endif
+#elseif defined ACCOUNT_USE_WHIRLPOOL
+    #include <Whirlpool>
+#else 
+    #error "samp-account: Must choose an encryption method."
 #endif
 
 #include <a_samp>
@@ -145,7 +155,12 @@ stock Account_RegisterPlayer(playerid, const password[])
 {
     if(!IsValidDB(gDBHandle)) {
         print("[ERROR - account.inc] Not connected to the database!");
-        return 0;
+        return;
+    }
+
+    if(Account_GetPlayerUID(playerid)) {
+        print("[ERROR - account.inc] Attemping to register an existing account.");
+        return;
     }
 
     new 
@@ -158,69 +173,101 @@ stock Account_RegisterPlayer(playerid, const password[])
     if(result) {
         if(db_num_rows(result)) {
             printf("[ERROR - account.inc] Username is already registered -> '%s'", ReturnPlayerName(playerid));
+            CallLocalFunction("OnPlayerFailRegistration", "i", playerid);
         } else {
             db_free_result(result);
 
-            new pass[129], ip[16];
-            WP_Hash(pass, sizeof(pass), password);
-            GetPlayerIp(playerid, ip, sizeof(ip));
 
-            format(query, sizeof(query), "INSERT INTO `"ACCOUNT_DATABASE_TABLE"` (username, password, reg_ip) VALUES('%s','%s','%s')",
-                ReturnPlayerName(playerid),
-                pass,
-                ip
-            );
+            #if defined ACCOUNT_USE_WHIRLPOOL
+                new pass[129];
+                WP_Hash(pass, sizeof(pass), password);
+                format(query, sizeof(query), "INSERT INTO `"ACCOUNT_DATABASE_TABLE"` (username, password) VALUES('%s','%s')",
+                    ReturnPlayerName(playerid),
+                    pass
+                );
 
-            db_query(gDBHandle, query);
-            format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
-            result = db_query(gDBHandle, query);
+                db_query(gDBHandle, query);
+                format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
+                result = db_query(gDBHandle, query);
 
-            gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
-            gPlayerData[playerid][bLoggedIn] = true;
-            
-            db_free_result(result);
+                gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
+                gPlayerData[playerid][bLoggedIn] = true;
+                
+                db_free_result(result);
 
-            CallLocalFunction("OnPlayerRegister", "i", playerid);
-            return 1;
+                CallLocalFunction("OnPlayerRegister", "i", playerid);
+            #elseif defined ACCOUNT_USE_BCRYPT
+                format(query, sizeof(query), "INSERT INTO `"ACCOUNT_DATABASE_TABLE"` (username) VALUES ('%s')",
+                    ReturnPlayerName(playerid)
+                );
+                db_query(gDBHandle, query);
+
+                bcrypt_hash(playerid, "OnPlayerPasswordHashed", password, ACCOUNT_BCRYPT_WORK_FACTOR);
+            #endif
+            return;
         }
         db_free_result(result);
     }
-    return 0;
+    return;
 }
 
 stock Account_LoginPlayer(playerid, const password[]) 
 {
     if(!IsValidDB(gDBHandle)) {
         print("[ERROR - account.inc] Not connected to the database!");
-        return 0;
+        return;
     }
 
-    new 
-        query[256],
-        DBResult: result,
-        pass[129];
+    if(!Account_GetPlayerUID(playerid)) {
+        print("[ERROR - account.inc] Attempting to login a non existent player.");
+        return;
+    }
 
-    WP_Hash(pass, sizeof(pass), password);
-    format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s' AND password = '%s'",
-        ReturnPlayerName(playerid),
-        pass
-    );
+    #if defined ACCOUNT_USE_WHIRLPOOL
+        new 
+            query[256],
+            DBResult: result,
+            pass[129];
 
-    result = db_query(gDBHandle, query);
+        WP_Hash(pass, sizeof(pass), password);
+        format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s' AND password = '%s'",
+            ReturnPlayerName(playerid),
+            pass
+        );
 
-    if(result) {
-        if(!db_num_rows(result)) {
-            printf("[ERROR - account.inc] Login attempt failed -> '%s'", ReturnPlayerName(playerid));
-        } else {
-            gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
+        result = db_query(gDBHandle, query);
+
+        if(result) {
+            if(!db_num_rows(result)) {
+                CallLocalFunction("OnPlayerInvalidLoginAttempt", "i", playerid);
+            } else {
+                gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
+                db_free_result(result);
+
+                CallLocalFunction("Account_LoadPlayerData", "i", playerid);
+                return;
+            }
             db_free_result(result);
-
-            CallLocalFunction("Account_LoadPlayerData", "i", playerid);
-            return 1;
         }
-        db_free_result(result);
-    }
-    return 0;
+    #elseif defined ACCOUNT_USE_BCRYPT
+        new 
+            hash[250],
+            query[128],
+            DBResult: result;
+
+        format(query, sizeof(query), "SELECT password FROM `"ACCOUNT_DATABASE_TABLE"` WHERE id = %i",
+            Account_GetPlayerUID(playerid)
+        );
+        result = db_query(gDBHandle, query);
+        if(result) {
+            if(db_num_rows(result)) {
+                db_get_field_assoc(result, "password", hash, sizeof(hash));
+            }
+            db_free_result(result);
+        }
+        bcrypt_verify(playerid, "OnPlayerPasswordVerified", password, hash);
+    #endif
+    return;
 }
 
 stock Account_AddPlayerData(const name[ACCOUNT_MAX_COLUMN_NAME], Types: type, {Float,_}:...)
@@ -295,7 +342,7 @@ stock Account_UpdatePlayerData(playerid, {Float,_}:...) {
                             format(tmp, sizeof(tmp), "%f", @ptr[addr][playerid]);
                         }
                         case TYPE_STRING: {
-                            format(tmp, sizeof(tmp), "%s", @ptr[addr, playerid]);
+                            format(tmp, sizeof(tmp), "'%q'", @ptr[addr, playerid]);
                         }
                     }
 
@@ -474,5 +521,48 @@ static ReturnPlayerName(playerid) {
     return name;
 }
 
+#if defined ACCOUNT_USE_BCRYPT
+    forward OnPlayerPasswordHashed(playerid);
+    public OnPlayerPasswordHashed(playerid) {
+        new 
+            dest[250],
+            query[128],
+            DBResult: result;
+
+        bcrypt_get_hash(dest);
+        format(query, sizeof(query), "UPDATE `"ACCOUNT_DATABASE_TABLE"` SET password = '%s' WHERE username = '%s'", 
+            dest,
+            ReturnPlayerName(playerid)
+        );
+        db_query(gDBHandle, query);
+
+        format(query, sizeof(query), "SELECT id FROM `"ACCOUNT_DATABASE_TABLE"` WHERE username = '%s'", ReturnPlayerName(playerid));
+        result = db_query(gDBHandle, query);
+
+        gPlayerData[playerid][eUID] = db_get_field_assoc_int(result, "id");
+        db_free_result(result);
+
+        gPlayerData[playerid][bLoggedIn] = true;
+        CallLocalFunction("OnPlayerRegister", "i", playerid);
+        return 1;
+    }
+
+    forward OnPlayerPasswordVerified(playerid, bool: success);
+    public OnPlayerPasswordVerified(playerid, bool: success) {
+        if(!success) {
+            CallLocalFunction("OnPlayerInvalidLoginAttempt", "i", playerid);
+        } else {
+            CallLocalFunction("Account_LoadPlayerData", "i", playerid);
+        }
+        return 1;
+    }
+#endif
+
 forward OnPlayerRegister(playerid);
 forward OnPlayerLogin(playerid);
+forward OnPlayerFailRegistration(playerid);
+forward OnPlayerInvalidLoginAttempt(playerid);
+
+#if defined ACCOUNT_EXT_AUTO_LOGIN
+    #include "accountx-auto-login.inc"
+#endif

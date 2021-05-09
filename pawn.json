@@ -6,7 +6,8 @@
 	"dependencies": [
 		"sampctl/samp-stdlib",
 		"SAMP-git/pointers",
-		"Southclaws/samp-whirlpool"
+		"Southclaws/samp-whirlpool",
+		"Sreyas-Sreelal/samp-bcrypt"
 	],
 	"runtime": {
 		"version": "0.3.7",
