@@ -437,10 +437,7 @@ static LoadAccountData(playerid)
 }
 
 static IsValidDB(DB: handle) {
-    if(handle != DB:0) {
-        return 1;
-    }
-    return 0;
+    return (handle != DB:0);
 }
 
 static GetOpenAccountSlot() {
